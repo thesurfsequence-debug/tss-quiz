@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Find Your Surf Level · The Surf Sequence</title>
+<meta name="description" content="Answer 8 real situations and find out your exact surf level. Beginner, Novice, or Foundation — no guessing, no ego."/>
+<meta property="og:title" content="What surf level are you, really?"/>
+<meta property="og:description" content="8 questions based on real ocean situations. Takes 4 minutes. Built by The Surf Sequence."/>
+<meta property="og:image" content="https://i.imgur.com/placeholder.png"/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:#08111A;color:#EEF4F8;font-family:'DM Sans',sans-serif}
+
+:root{
+  --ink:#08111A;
+  --deep:#0D1F2D;
+  --navy:#112436;
+  --mid:#1A3A5C;
+  --ocean:#0096C7;
+  --foam:#90E0EF;
+  --white:#EEF4F8;
+  --mist:#8BAFC4;
+  --fog:#3D5A6E;
+  --sand:#C8A96E;
+  --coral:#E07060;
+  --moss:#4CAF7D;
+}
+
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes swell{0%,100%{transform:scaleX(1) scaleY(1)}50%{transform:scaleX(1.015) scaleY(0.985)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.rise{animation:rise 0.42s cubic-bezier(.22,.68,0,1.15) forwards}
+.rise-2{animation:rise 0.42s cubic-bezier(.22,.68,0,1.15) 0.07s forwards;opacity:0}
+.rise-3{animation:rise 0.42s cubic-bezier(.22,.68,0,1.15) 0.14s forwards;opacity:0}
+.rise-4{animation:rise 0.42s cubic-bezier(.22,.68,0,1.15) 0.21s forwards;opacity:0}
+
+/* Layout */
+#bg{position:fixed;inset:0;z-index:0;
+  background:radial-gradient(ellipse 120% 60% at 50% 100%,#0D2A3A 0%,#08111A 60%)}
+#bg::before{content:'';position:absolute;top:38%;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(144,224,239,.07),transparent)}
+#bg::after{content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(144,224,239,.012) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(144,224,239,.012) 1px,transparent 1px);
+  background-size:64px 64px}
+#wave{position:fixed;bottom:0;left:-10%;width:120%;height:120px;z-index:0;
+  background:rgba(0,96,150,.04);border-radius:50% 50% 0 0;
+  animation:swell 7s ease-in-out infinite}
+
+#app{position:relative;z-index:1;min-height:100vh;
+  display:flex;align-items:center;justify-content:center;padding:32px 16px}
+#wrap{width:100%;max-width:580px}
+
+/* Buttons */
+.cta{width:100%;padding:15px;
+  background:linear-gradient(135deg,#1A3A5C,#0077A8);
+  border:1px solid rgba(0,150,199,.4);border-radius:6px;
+  color:#EEF4F8;font-family:'DM Mono',monospace;
+  font-size:13px;letter-spacing:2px;text-transform:uppercase;
+  cursor:pointer;transition:all .2s}
+.cta:hover:not(:disabled){box-shadow:0 0 24px rgba(0,150,199,.3);transform:translateY(-1px)}
+.cta:disabled{opacity:.3;cursor:not-allowed}
+.ghost{width:100%;padding:13px;background:transparent;
+  border:1px solid rgba(255,255,255,.07);border-radius:6px;
+  color:var(--fog);font-family:'DM Mono',monospace;
+  font-size:12px;letter-spacing:1px;cursor:pointer;transition:all .2s}
+.ghost:hover{color:var(--mist);border-color:rgba(255,255,255,.15)}
+
+/* Options */
+.opt{width:100%;background:rgba(255,255,255,.025);
+  border:1px solid rgba(144,224,239,.08);border-radius:6px;
+  padding:15px 17px;text-align:left;cursor:pointer;
+  display:flex;align-items:flex-start;gap:13px;
+  transition:background .15s,border-color .15s;margin-bottom:10px}
+.opt:hover{background:rgba(255,255,255,.045);border-color:rgba(144,224,239,.2)}
+.opt.sel{background:rgba(0,150,199,.1);border-color:rgba(0,150,199,.45)}
+.opt-dot{width:18px;height:18px;border-radius:50%;flex-shrink:0;margin-top:2px;
+  border:1.5px solid var(--fog);background:transparent;
+  display:flex;align-items:center;justify-content:center;transition:all .15s}
+.opt.sel .opt-dot{border-color:var(--ocean);background:var(--ocean)}
+.opt-inner{width:6px;height:6px;border-radius:50%;background:var(--ink);display:none}
+.opt.sel .opt-inner{display:block}
+.opt-text{font-size:14px;color:var(--mist);line-height:1.55;transition:color .15s}
+.opt.sel .opt-text{color:var(--white)}
+
+/* Form inputs */
+.field{width:100%;padding:13px 15px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08);border-radius:6px;
+  color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;
+  outline:none;transition:border-color .2s;margin-bottom:12px}
+.field:focus{border-color:rgba(0,150,199,.5)}
+.field::placeholder{color:var(--fog)}
+.field-label{font-family:'DM Mono',monospace;font-size:10px;
+  letter-spacing:2px;color:var(--fog);text-transform:uppercase;
+  display:block;margin-bottom:6px}
+
+/* Tags */
+.tag{display:inline-flex;align-items:center;gap:7px;
+  padding:5px 14px;border-radius:20px;
+  font-family:'DM Mono',monospace;font-size:10px;
+  letter-spacing:3px;text-transform:uppercase;margin-bottom:28px}
+
+/* Blocks bar */
+.blocks{display:flex;gap:8px;margin-bottom:26px}
+.block-pill{flex:1;padding:8px 10px;border-radius:4px;
+  border:1px solid rgba(255,255,255,.04);
+  background:rgba(255,255,255,.02);transition:all .3s}
+.block-pill.active{background:rgba(0,150,199,.1);border-color:rgba(0,150,199,.35)}
+.block-pill.done{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)}
+.block-label{font-family:'DM Mono',monospace;font-size:9px;
+  letter-spacing:2px;text-transform:uppercase;color:var(--fog);margin-bottom:3px}
+.block-pill.active .block-label{color:var(--ocean)}
+.block-name{font-size:11px;color:var(--fog)}
+.block-pill.active .block-name{color:var(--foam)}
+.block-pill.done .block-name{color:var(--mist)}
+
+/* Situation box */
+.situation{padding:10px 14px;background:rgba(255,255,255,.02);
+  border-left:2px solid var(--mid);border-radius:0 4px 4px 0;margin-bottom:20px}
+
+/* Progress dots */
+.qdots{display:flex;gap:5px}
+.qdot{height:3px;border-radius:2px;background:rgba(255,255,255,.1);
+  transition:all .3s}
+.qdot.done{background:var(--ocean);width:20px}
+.qdot.active{background:var(--foam);width:20px}
+.qdot.future{width:8px}
+
+/* Result card */
+.result-card{background:linear-gradient(135deg,rgba(13,31,45,.92),rgba(8,17,26,.96));
+  border-radius:12px;padding:32px 26px;margin-bottom:16px}
+.why-item{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
+.why-num{width:20px;height:20px;border-radius:3px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Mono',monospace;font-size:10px;margin-top:1px}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:22px}
+.meta-cell{padding:10px 11px;background:rgba(255,255,255,.02);
+  border:1px solid rgba(255,255,255,.05);border-radius:6px}
+.meta-label{font-family:'DM Mono',monospace;font-size:9px;
+  letter-spacing:2px;text-transform:uppercase;color:var(--fog);margin-bottom:4px}
+.meta-val{font-size:12px;color:var(--mist)}
+
+/* Spinner */
+.spinner{width:32px;height:32px;border:2px solid rgba(0,150,199,.2);
+  border-top-color:var(--ocean);border-radius:50%;
+  animation:spin .8s linear infinite;margin:0 auto 16px}
+
+/* Honest note */
+.honest-note{padding:14px 17px;background:rgba(255,255,255,.015);
+  border:1px solid rgba(255,255,255,.05);border-radius:8px;margin-bottom:20px}
+
+@media(max-width:400px){
+  .meta-grid{grid-template-columns:1fr 1fr}
+  .meta-cell:last-child{grid-column:1/-1}
+}
+</style>
+</head>
+<body>
+
+<div id="bg"></div>
+<div id="wave"></div>
+<div id="app"><div id="wrap"></div></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+
+const BLOCKS = [
+  {
+    id:"A", label:"Block A", name:"Autonomy",
+    desc:"One purpose: figuring out what you can actually do in the water without a coach next to you.",
+    questions:[
+      {
+        id:"A1",
+        situation:"Picture your last surf session — or the last time you were in the ocean.",
+        question:"Be honest: did you need the coach (or someone) in the water with you to catch waves?",
+        options:[
+          {text:"Yes — I needed someone there. Without guidance I wouldn't know what to do.", v:1},
+          {text:"Mostly yes. I can try things alone but I miss a lot without someone helping me position.", v:1.5},
+          {text:"Not really. I can manage on my own, though I still benefit a lot from feedback.", v:2.5},
+          {text:"No. I enter, read the conditions, and surf independently. I seek coaching for improvement, not survival.", v:3},
+        ]
+      },
+      {
+        id:"A2",
+        situation:"The coach steps out of the water for 20 minutes. You're alone in waist-deep whitewash.",
+        question:"What actually happens?",
+        options:[
+          {text:"I feel lost. I'm not sure when to paddle, where to position, or what to work on.", v:1},
+          {text:"I keep trying, but I'm catching maybe 1 in 5 waves — I need someone to tell me when to go.", v:1.5},
+          {text:"I'm okay. I catch waves, but my technique falls apart without real-time correction.", v:2.5},
+          {text:"I'm fine. I self-analyze, adjust, and keep working on my own objectives.", v:3},
+        ]
+      },
+      {
+        id:"A3",
+        situation:"You're about to paddle out. No coach. Small clean waves, chest-high, light crowd.",
+        question:"What's your honest reaction?",
+        options:[
+          {text:"I'd probably wait on shore — I don't feel safe going in without someone watching.", v:1},
+          {text:"I'd go in, stay in the whitewash zone, and be careful. Green waves feel risky alone.", v:1.5},
+          {text:"I'd go out. I might not surf great, but I know what I'm doing and I'm comfortable.", v:2.5},
+          {text:"I'd read the break, pick my spot, and surf my session. Conditions like that are routine.", v:3},
+        ]
+      },
+    ]
+  },
+  {
+    id:"B", label:"Block B", name:"Conditions",
+    desc:"Now let's find where exactly your independence starts — and where it ends.",
+    questions:[
+      {
+        id:"B1",
+        situation:"You arrive at a beach you've never surfed. Waves are 2–3ft, clean, slight offshore wind.",
+        question:"Without a coach explaining the spot — what can you do?",
+        options:[
+          {text:"I'd need someone to show me where to paddle out and where the waves are breaking.", v:1},
+          {text:"I'd watch for a while, find something that looks safe, and give it a shot — but mostly guessing.", v:1.5},
+          {text:"I'd do a venue analysis, identify the peak, check the current, and paddle out with a plan.", v:2.5},
+          {text:"I'd fully read the break — swell angle, tide, rip channel, section shape — and position strategically.", v:3},
+        ]
+      },
+      {
+        id:"B2",
+        situation:"Mid-session, the peak moves 30 meters down the beach.",
+        question:"What do you do?",
+        options:[
+          {text:"I don't notice until I'm catching nothing, then look around confused.", v:1},
+          {text:"I notice eventually and paddle toward where others are going.", v:1.5},
+          {text:"I identify the new peak and reposition before wasting too many paddles.", v:2.5},
+          {text:"I was already watching the sets — I start repositioning before the shift completes.", v:3},
+        ]
+      },
+      {
+        id:"B3",
+        situation:"The wave comes. You paddle. You feel the push.",
+        question:"What happens — no coach, no instruction, just you:",
+        options:[
+          {text:"I focus on standing up — everything else disappears. I'm just trying to get to my feet.", v:1},
+          {text:"I pop up, get my stance, and ride straight to shore. Turning is hit or miss.", v:1.5},
+          {text:"I pop up, read the wave face, and decide which direction based on where it's opening.", v:2.5},
+          {text:"I've already chosen my line in the cobra — I stand with intention and work the wave.", v:3},
+        ]
+      },
+    ]
+  },
+  {
+    id:"C", label:"Block C", name:"Technique",
+    desc:"Two specific questions. These are the ones that actually separate levels in the water.",
+    questions:[
+      {
+        id:"C1",
+        situation:"You wipe out. The wave holds you down for a few seconds.",
+        question:"What's your body and mind doing?",
+        options:[
+          {text:"Panic. I'm fighting to get up as fast as possible — it's scary every time.", v:1},
+          {text:"I try to stay calm but it's hard. I haven't wiped out enough to be comfortable.", v:1.5},
+          {text:"I cover my head, wait for turbulence to pass, then surface calmly. It's normal.", v:2.5},
+          {text:"I use the hold-down — depth, push direction — to adjust my next positioning.", v:3},
+        ]
+      },
+      {
+        id:"C2",
+        situation:"Someone who surfs well is watching you from shore.",
+        question:"What would they honestly say about your surfing right now?",
+        options:[
+          {text:"\"They're a beginner — still figuring out how to stand and ride the whitewash.\"", v:1},
+          {text:"\"They can stand up and ride, but they're surfing the board, not the wave.\"", v:1.5},
+          {text:"\"They're reading the wave — going left or right, working the face. Needs more power.\"", v:2.5},
+          {text:"\"They have real technique — connecting turns, generating speed, using the pocket consistently.\"", v:3},
+        ]
+      },
+    ]
+  }
+];
+
+const LEVELS = {
+  BEGINNER:{
+    name:"BEGINNER",
+    sub:"Supervised in-water coaching required",
+    color:"#4CAF7D", glow:"rgba(76,175,125,.15)", border:"rgba(76,175,125,.3)",
+    conditions:"Whitewash · Waves under 2ft · Sandy bottom",
+    group:"Max 4 per group", price:"$2,200",
+    cta:"Book Beginner Camp",
+    reasons:[
+      "You need a coach present in the water to function effectively.",
+      "Whitewash is your training zone — and that is exactly where real technique gets built.",
+      "The Beginner camp is not a step down. It is where correct habits get installed from day one.",
+    ],
+    note:"Most people who end up frustrated with their surfing progress skipped this stage. You didn't — and that makes all the difference."
+  },
+  NOVICE:{
+    name:"NOVICE",
+    sub:"Transition phase — coaching support still needed",
+    color:"#0096C7", glow:"rgba(0,150,199,.15)", border:"rgba(0,150,199,.3)",
+    conditions:"2–4ft · Defined peaks · Supervised green waves",
+    group:"Max 4 per group", price:"$2,200",
+    cta:"Book Novice Camp",
+    reasons:[
+      "You can manage in the water, but green waves still require coaching support to progress consistently.",
+      "You are in the transition zone — the most important and most misunderstood phase in surfing.",
+      "Day 1 of Novice camp is in whitewash on purpose. Not because you can't surf — because that's where habits are made or broken.",
+    ],
+    note:"The Novice who accepts this phase and works through it properly always overtakes the one who skipped it."
+  },
+  FOUNDATION:{
+    name:"FOUNDATION",
+    sub:"Functionally independent — system-level coaching",
+    color:"#C8A96E", glow:"rgba(200,169,110,.15)", border:"rgba(200,169,110,.3)",
+    conditions:"3–5ft · Known spots · Moderate power",
+    group:"Max 4 per group", price:"$2,200",
+    cta:"Book Foundation Camp",
+    reasons:[
+      "You are functionally independent in the water in familiar conditions.",
+      "Your next step is connecting body, board, and wave as a single system — not just reacting.",
+      "The Foundation camp gives you the Three Circles of Power and a self-improvement tool you use for the rest of your surfing life.",
+    ],
+    note:"Foundation is where surfers stop getting better by accident and start getting better by design."
+  },
+  BEYOND:{
+    name:"BEYOND FOUNDATION",
+    sub:"Custom program recommended",
+    color:"#E07060", glow:"rgba(224,112,96,.15)", border:"rgba(224,112,96,.3)",
+    conditions:"4ft+ · Variable conditions · Multiple breaks",
+    group:"Private coaching", price:"Contact us",
+    cta:"Get in touch",
+    reasons:[
+      "Your ocean management and technical base are beyond the standard camp structure.",
+      "A group camp at any of our three levels would hold you back rather than challenge you.",
+      "You need a customized coaching program. Let's talk directly.",
+    ],
+    note:"Reach out via WhatsApp and we'll design something built specifically for where you are."
+  }
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let state = {
+  screen: "intro",   // intro | quiz | capture | sending | result
+  blockIdx: 0,
+  qIdx: 0,
+  answers: {},       // { A1: 1.5, B2: 2.5, ... }
+  selected: null,
+  level: null,
+  name: "", whatsapp: "", email: ""
+};
+
+// ── SCORING ───────────────────────────────────────────────────────────────────
+function computeLevel(answers){
+  const vals = Object.values(answers);
+  const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
+
+  // Block A hard check — if mostly needs coach → Beginner
+  const aVals = ["A1","A2","A3"].map(k=>answers[k]||1);
+  const aAvg = aVals.reduce((a,b)=>a+b,0)/aVals.length;
+
+  if(aAvg <= 1.3)  return "BEGINNER";
+  if(avg <= 1.65)  return "BEGINNER";
+  if(avg <= 2.2)   return "NOVICE";
+  if(avg <= 2.75)  return "FOUNDATION";
+  return "BEYOND";
+}
+
+// ── RENDER HELPERS ────────────────────────────────────────────────────────────
+function el(tag,attrs,children){
+  const e = document.createElement(tag);
+  if(attrs) Object.entries(attrs).forEach(([k,v])=>{
+    if(k==="class") e.className=v;
+    else if(k==="style") Object.assign(e.style,v);
+    else if(k.startsWith("on")) e.addEventListener(k.slice(2).toLowerCase(),v);
+    else e.setAttribute(k,v);
+  });
+  if(children){
+    if(typeof children==="string") e.innerHTML=children;
+    else if(Array.isArray(children)) children.forEach(c=>c&&e.appendChild(c));
+    else e.appendChild(children);
+  }
+  return e;
+}
+function div(cls,children,style){return el("div",{class:cls,style},children)}
+function p(cls,txt){return el("p",{class:cls},txt)}
+function btn(cls,txt,onClick){return el("button",{class:cls,onClick:onClick},txt)}
+function span(txt,style){return el("span",{style},txt)}
+
+// ── SCREENS ───────────────────────────────────────────────────────────────────
+
+function renderIntro(){
+  const wrap = div("rise");
+  wrap.style.textAlign="center";
+
+  const tag = div("tag",null,{border:"1px solid rgba(144,224,239,.15)",color:"#0096C7"});
+  tag.style.margin="0 auto 28px";
+  tag.innerHTML=`<span style="width:6px;height:6px;border-radius:50%;background:#0096C7;display:inline-block;animation:pulse 2s infinite"></span> The Surf Sequence · Level Diagnostic`;
+  wrap.appendChild(tag);
+
+  wrap.appendChild(el("h1",{style:{
+    fontFamily:"'DM Serif Display',serif",fontSize:"clamp(30px,7vw,50px)",
+    fontWeight:400,lineHeight:1.1,marginBottom:14,color:"#EEF4F8"
+  }},"What surf level are<br/><span style='color:#90E0EF;font-style:italic'>you, really?</span>"));
+
+  wrap.appendChild(el("p",{class:"rise-2",style:{
+    fontSize:15,color:"#8BAFC4",lineHeight:1.75,maxWidth:440,margin:"0 auto 18px"
+  }},"Most surfers overestimate their level by one tier. This diagnostic uses real ocean situations — not self-assessment — to find where you actually are."));
+
+  const note = div("",null,{
+    padding:"13px 17px",background:"rgba(255,255,255,.02)",
+    border:"1px solid rgba(255,255,255,.06)",borderRadius:8,
+    maxWidth:440,margin:"0 auto 32px",textAlign:"left"
+  });
+  note.innerHTML=`<span style="color:#8BAFC4;font-size:13px;line-height:1.7"><span style="color:#EEF4F8">One rule:</span> Answer what you <em>actually do</em> — not what you wish you did, or what you did once on a perfect day. The right camp is the one that matches where you truly are.</span>`;
+  wrap.appendChild(note);
+
+  const grid = div("rise-3",null,{
+    display:"grid",gridTemplateColumns:"1fr 1fr 1fr",
+    gap:10,maxWidth:380,margin:"0 auto 36px"
+  });
+  [["8","questions"],["3","blocks"],["~4 min","total"]].forEach(([v,l])=>{
+    const c = div("",null,{padding:"12px",background:"rgba(255,255,255,.02)",
+      border:"1px solid rgba(255,255,255,.05)",borderRadius:6});
+    c.innerHTML=`<div style="font-family:'DM Mono',monospace;font-size:18px;color:#90E0EF">${v}</div><div style="font-size:11px;color:#3D5A6E;margin-top:2px">${l}</div>`;
+    grid.appendChild(c);
+  });
+  wrap.appendChild(grid);
+
+  const startBtn = btn("cta rise-4","Start →",()=>goTo("quiz"));
+  startBtn.style.maxWidth="340px";
+  startBtn.style.margin="0 auto";
+  startBtn.style.display="block";
+  wrap.appendChild(startBtn);
+
+  wrap.appendChild(el("p",{style:{
+    fontFamily:"'DM Mono',monospace",fontSize:10,color:"#3D5A6E",marginTop:18,letterSpacing:1
+  }},"Developed by Marcelo Castellanos · Puro Surf"));
+
+  return wrap;
+}
+
+function renderQuiz(){
+  const block = BLOCKS[state.blockIdx];
+  const q = block.questions[state.qIdx];
+  const totalQ = BLOCKS.reduce((s,b)=>s+b.questions.length,0);
+  const doneQ = BLOCKS.slice(0,state.blockIdx).reduce((s,b)=>s+b.questions.length,0)+state.qIdx;
+  const pct = Math.round((doneQ/totalQ)*100);
+
+  const wrap = div("");
+
+  // Global progress
+  const pgWrap = div("",null,{marginBottom:18});
+  const pgTop = div("",null,{display:"flex",justifyContent:"space-between",marginBottom:6});
+  pgTop.appendChild(el("span",{style:{fontFamily:"'DM Mono',monospace",fontSize:10,color:"#3D5A6E",letterSpacing:2}},"PROGRESS"));
+  pgTop.appendChild(el("span",{style:{fontFamily:"'DM Mono',monospace",fontSize:10,color:"#0096C7"}},(doneQ)+"/"+totalQ));
+  pgWrap.appendChild(pgTop);
+  const pgBar = div("",null,{height:2,background:"rgba(255,255,255,.05)",borderRadius:2});
+  const pgFill = div("",null,{height:"100%",width:pct+"%",borderRadius:2,
+    background:"linear-gradient(90deg,#0096C7,#90E0EF)",
+    boxShadow:"0 0 8px rgba(144,224,239,.3)",transition:"width .4s"});
+  pgBar.appendChild(pgFill);
+  pgWrap.appendChild(pgBar);
+  wrap.appendChild(pgWrap);
+
+  // Block indicator
+  const blocksEl = div("blocks");
+  BLOCKS.forEach((b,i)=>{
+    const pill = div("block-pill");
+    if(i===state.blockIdx) pill.classList.add("active");
+    else if(i<state.blockIdx) pill.classList.add("done");
+    pill.innerHTML=`<div class="block-label">${b.label}</div><div class="block-name">${b.name}</div>`;
+    blocksEl.appendChild(pill);
+  });
+  wrap.appendChild(blocksEl);
+
+  // Block intro (first question of each block)
+  if(state.qIdx===0){
+    const intro = div("rise",null,{
+      padding:"11px 15px",
+      background:"rgba(0,150,199,.06)",border:"1px solid rgba(0,150,199,.15)",
+      borderRadius:6,marginBottom:20
+    });
+    intro.innerHTML=`<div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:#0096C7;text-transform:uppercase;margin-bottom:3px">${block.label} · ${block.name}</div><p style="font-size:13px;color:#8BAFC4;line-height:1.6">${block.desc}</p>`;
+    wrap.appendChild(intro);
+  }
+
+  // Q progress dots
+  const dotsWrap = div("",null,{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18});
+  dotsWrap.appendChild(el("span",{style:{fontFamily:"'DM Mono',monospace",fontSize:11,color:"#3D5A6E",letterSpacing:2}},
+    (state.qIdx+1)+" / "+block.questions.length));
+  const dots = div("qdots");
+  block.questions.forEach((_,i)=>{
+    const d = div("qdot");
+    if(i<state.qIdx) d.classList.add("done");
+    else if(i===state.qIdx) d.classList.add("active");
+    else d.classList.add("future");
+    dots.appendChild(d);
+  });
+  dotsWrap.appendChild(dots);
+  wrap.appendChild(dotsWrap);
+
+  // Situation
+  const sit = div("situation rise");
+  sit.innerHTML=`<span style="font-family:'DM Mono',monospace;font-size:10px;color:#3D5A6E;letter-spacing:2px;text-transform:uppercase">Situation · </span><span style="font-size:14px;color:#8BAFC4">${q.situation}</span>`;
+  wrap.appendChild(sit);
+
+  // Question
+  wrap.appendChild(el("h2",{class:"rise-2",style:{
+    fontFamily:"'DM Serif Display',serif",
+    fontSize:"clamp(17px,3.5vw,22px)",color:"#EEF4F8",
+    fontWeight:400,lineHeight:1.35,marginBottom:20
+  }},q.question));
+
+  // Options
+  const optWrap = div("rise-3");
+  q.options.forEach((opt,i)=>{
+    const o = div("opt");
+    if(state.selected===i) o.classList.add("sel");
+    const dot = div("opt-dot");
+    dot.appendChild(div("opt-inner"));
+    const txt = div("opt-text",opt.text);
+    o.appendChild(dot);
+    o.appendChild(txt);
+    o.addEventListener("click",()=>{
+      state.selected=i;
+      render();
+    });
+    optWrap.appendChild(o);
+  });
+  wrap.appendChild(optWrap);
+
+  // Next button
+  const isLastQ = state.qIdx===block.questions.length-1;
+  const isLastBlock = state.blockIdx===BLOCKS.length-1;
+  const isLast = isLastQ && isLastBlock;
+  const nextBtn = btn("cta",isLast?"See my level →":"Next →",()=>{
+    if(state.selected===null) return;
+    const val = q.options[state.selected].v;
+    state.answers[q.id] = val;
+    state.selected = null;
+    if(!isLastQ){
+      state.qIdx++;
+    } else if(!isLastBlock){
+      state.blockIdx++;
+      state.qIdx=0;
+    } else {
+      state.level = computeLevel(state.answers);
+      goTo("capture");
+    }
+    render();
+  });
+  nextBtn.style.marginTop="22px";
+  nextBtn.disabled = state.selected===null;
+  wrap.appendChild(nextBtn);
+
+  return wrap;
+}
+
+function renderCapture(){
+  const lvl = LEVELS[state.level];
+  const wrap = div("rise");
+
+  // Mini level preview
+  const preview = div("",null,{
+    padding:"16px 20px",
+    background:`linear-gradient(135deg,rgba(13,31,45,.9),rgba(8,17,26,.95))`,
+    border:`1px solid ${lvl.border}`,borderRadius:8,marginBottom:24,
+    boxShadow:`0 0 30px ${lvl.glow}`
+  });
+  preview.innerHTML=`
+    <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:${lvl.color};text-transform:uppercase;margin-bottom:4px">Your level</div>
+    <div style="font-family:'DM Mono',monospace;font-size:28px;letter-spacing:4px;color:${lvl.color};font-weight:500">${lvl.name}</div>
+    <div style="font-size:13px;color:#8BAFC4;font-style:italic;margin-top:4px">${lvl.sub}</div>
+  `;
+  wrap.appendChild(preview);
+
+  wrap.appendChild(el("h2",{class:"rise-2",style:{
+    fontFamily:"'DM Serif Display',serif",fontSize:"clamp(18px,4vw,24px)",
+    color:"#EEF4F8",fontWeight:400,lineHeight:1.3,marginBottom:8
+  }},"One last step."));
+  wrap.appendChild(el("p",{class:"rise-2",style:{fontSize:14,color:"#8BAFC4",lineHeight:1.65,marginBottom:24}},
+    "Leave your details and we'll reach out with everything about your specific camp — dates, availability, and what to expect."));
+
+  // Fields
+  const form = div("rise-3");
+
+  const nameLabel = el("label",{class:"field-label"},"Your name");
+  const nameInput = el("input",{class:"field",type:"text",placeholder:"e.g. Maria González"});
+  nameInput.value = state.name;
+  nameInput.addEventListener("input",e=>state.name=e.target.value);
+  form.appendChild(nameLabel);
+  form.appendChild(nameInput);
+
+  const waLabel = el("label",{class:"field-label"},"WhatsApp number");
+  const waInput = el("input",{class:"field",type:"tel",placeholder:"+1 555 000 0000"});
+  waInput.value = state.whatsapp;
+  waInput.addEventListener("input",e=>state.whatsapp=e.target.value);
+  form.appendChild(waLabel);
+  form.appendChild(waInput);
+
+  const emLabel = el("label",{class:"field-label"},"Email (optional)");
+  const emInput = el("input",{class:"field",type:"email",placeholder:"you@email.com"});
+  emInput.value = state.email;
+  emInput.addEventListener("input",e=>state.email=e.target.value);
+  form.appendChild(emLabel);
+  form.appendChild(emInput);
+
+  wrap.appendChild(form);
+
+  const submitBtn = btn("cta rise-4","Get my results →",async()=>{
+    if(!state.name.trim()||!state.whatsapp.trim()){
+      waInput.style.borderColor="rgba(224,112,96,.6)";
+      nameInput.style.borderColor=state.name.trim()?"":"rgba(224,112,96,.6)";
+      return;
+    }
+    await submitLead();
+  });
+  submitBtn.style.marginTop="8px";
+  wrap.appendChild(submitBtn);
+
+  wrap.appendChild(el("p",{style:{fontSize:12,color:"#3D5A6E",marginTop:14,textAlign:"center",lineHeight:1.6}},
+    "No spam. No selling your data. We'll reach out once about your camp."));
+
+  return wrap;
+}
+
+function renderSending(){
+  const wrap = div("rise",null,{textAlign:"center",padding:"60px 0"});
+  wrap.appendChild(div("spinner"));
+  wrap.appendChild(el("p",{style:{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#3D5A6E",letterSpacing:2}},"Processing..."));
+  return wrap;
+}
+
+function renderResult(){
+  const lvl = LEVELS[state.level];
+  const wrap = div("rise");
+
+  // Tag
+  const tag = div("tag",null,{border:`1px solid ${lvl.border}`,color:lvl.color});
+  tag.innerHTML=`<span style="width:6px;height:6px;border-radius:50%;background:${lvl.color};display:inline-block;animation:pulse 2s infinite"></span> Your level`;
+  wrap.appendChild(tag);
+
+  // Result card
+  const card = div("result-card",null,{border:`1px solid ${lvl.border}`,boxShadow:`0 0 40px ${lvl.glow},inset 0 1px 0 rgba(255,255,255,.04)`});
+
+  card.innerHTML+=`
+    <h1 style="font-family:'DM Mono',monospace;font-size:clamp(28px,6vw,44px);letter-spacing:4px;color:${lvl.color};font-weight:500;margin-bottom:5px">${lvl.name}</h1>
+    <p style="font-size:14px;color:#8BAFC4;font-style:italic;margin-bottom:26px">${lvl.sub}</p>
+  `;
+
+  // Why section
+  const whyLabel = div("",null,{fontFamily:"'DM Mono',monospace",fontSize:10,letterSpacing:2,color:"#3D5A6E",textTransform:"uppercase",marginBottom:12});
+  whyLabel.textContent="Why this level";
+  card.appendChild(whyLabel);
+
+  lvl.reasons.forEach((r,i)=>{
+    const item = div("why-item");
+    const num = div("why-num",null,{background:`${lvl.color}20`,border:`1px solid ${lvl.border}`,color:lvl.color});
+    num.textContent=(i+1);
+    item.appendChild(num);
+    item.appendChild(el("p",{style:{fontSize:14,color:"#8BAFC4",lineHeight:1.6,margin:0}},r));
+    card.appendChild(item);
+  });
+
+  // Meta
+  const meta = div("meta-grid");
+  [["Conditions",lvl.conditions],["Group size",lvl.group],["Investment",lvl.price]].forEach(([l,v])=>{
+    const c = div("meta-cell");
+    c.innerHTML=`<div class="meta-label">${l}</div><div class="meta-val">${v}</div>`;
+    meta.appendChild(c);
+  });
+  card.appendChild(meta);
+  wrap.appendChild(card);
+
+  // Honest note
+  const note = div("honest-note");
+  note.innerHTML=`<p style="font-size:13px;color:#3D5A6E;line-height:1.65;margin:0"><span style="color:#8BAFC4">Note: </span>${lvl.note}</p>`;
+  wrap.appendChild(note);
+
+  // Ego warning
+  const ego = div("",null,{
+    padding:"13px 16px",background:"rgba(255,255,255,.015)",
+    border:"1px solid rgba(255,255,255,.05)",borderRadius:8,marginBottom:20
+  });
+  ego.innerHTML=`<p style="font-size:12px;color:#3D5A6E;line-height:1.65;margin:0">If you felt tempted to choose a higher option than what truly reflects your experience — that is the ego talking. The right level is where you <em style="color:#8BAFC4">actually grow</em>, not the one that sounds better.</p>`;
+  wrap.appendChild(ego);
+
+  // CTA
+  const ctaBtn = btn("cta",lvl.cta+" →",()=>{
+    const msg = encodeURIComponent(`Hi! I just completed the TSS level diagnostic and got: ${lvl.name}. I'd like to know more about the ${lvl.name} camp. My name is ${state.name}.`);
+    window.open(`https://wa.me/50300000000?text=${msg}`,"_blank");
+  });
+  wrap.appendChild(ctaBtn);
+
+  wrap.appendChild(div("",null,{height:10}));
+  wrap.appendChild(btn("ghost","Retake diagnostic",()=>{
+    state={screen:"intro",blockIdx:0,qIdx:0,answers:{},selected:null,level:null,name:"",whatsapp:"",email:""};
+    render();
+  }));
+
+  wrap.appendChild(el("p",{style:{
+    fontFamily:"'DM Mono',monospace",fontSize:10,color:"#3D5A6E",
+    textAlign:"center",marginTop:24,letterSpacing:2,textTransform:"uppercase"
+  }},"The Surf Sequence · Evolve through play"));
+
+  return wrap;
+}
+
+// ── LEAD SUBMISSION ───────────────────────────────────────────────────────────
+async function submitLead(){
+  goTo("sending");
+  render();
+
+  const payload = {
+    name: state.name,
+    whatsapp: state.whatsapp,
+    email: state.email,
+    level: state.level,
+    answers: state.answers,
+    timestamp: new Date().toISOString(),
+    source: "TSS Level Diagnostic"
+  };
+
+  try {
+    // ── Google Sheets via Apps Script ───────────────────────────────────────
+    const SHEET_URL = "https://script.google.com/macros/s/AKfycbxMuOWHXzTnZJm18FyhY0uU778kfA_kaWqWca96cIVduhqq8R4oWzrk-0cDhqIAh3PD/exec";
+    await fetch(SHEET_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload)
+    });
+
+    goTo("result");
+    render();
+
+  } catch(err) {
+    console.error("Submission error:", err);
+    // Still show result even if submission fails
+    goTo("result");
+    render();
+  }
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function goTo(screen){ state.screen=screen; }
+
+function render(){
+  const wrap = document.getElementById("wrap");
+  wrap.innerHTML="";
+  let content;
+  if(state.screen==="intro")   content=renderIntro();
+  else if(state.screen==="quiz")    content=renderQuiz();
+  else if(state.screen==="capture") content=renderCapture();
+  else if(state.screen==="sending") content=renderSending();
+  else if(state.screen==="result")  content=renderResult();
+  if(content) wrap.appendChild(content);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+render();
+</script>
+</body>
+</html>
