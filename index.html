@@ -453,6 +453,98 @@ function logo(height=44){
 
 // ── SCREENS ──────────────────────────────────────────────────────────────────
 
+function renderReturning(){
+  const w=document.createElement("div");
+  w.className="rise";
+  w.style.textAlign="center";
+
+  // Logo
+  const lw=document.createElement("div");
+  lw.className="logo-wrap-center";
+  lw.appendChild(logo(120));
+  w.appendChild(lw);
+
+  // Divider
+  const div1=document.createElement("div");
+  div1.style.cssText="height:1px;background:rgba(0,180,216,.12);margin:0 auto 32px;max-width:200px";
+  w.appendChild(div1);
+
+  // Welcome tag
+  const tag=document.createElement("div");
+  tag.className="tag-label";
+  tag.style.cssText="border:1px solid rgba(0,180,216,.3);color:#00B4D8;margin:0 auto 28px";
+  const dot=document.createElement("span");
+  dot.style.cssText="width:6px;height:6px;border-radius:50%;background:#00B4D8;display:inline-block;animation:pulse 2s infinite;margin-right:8px";
+  tag.appendChild(dot);
+  tag.appendChild(document.createTextNode("Welcome back"));
+  w.appendChild(tag);
+
+  // Heading
+  const h1=document.createElement("h1");
+  h1.style.cssText="font-family:Montserrat,sans-serif;font-size:clamp(28px,6vw,44px);font-weight:300;line-height:1.15;margin-bottom:16px;color:#F0F6FA;letter-spacing:-0.5px";
+  h1.innerHTML="Let\'s continue working<br/><em style=\'color:#90E0EF;font-style:italic;font-weight:400\'>on your level.</em>";
+  w.appendChild(h1);
+
+  // Message
+  const msg=document.createElement("p");
+  msg.style.cssText="font-size:15px;color:#8BAFC4;line-height:1.75;max-width:420px;margin:0 auto 32px;font-weight:300";
+  msg.textContent="Your coach has your history. Write us directly on WhatsApp and we will pick up right where you left off — no need to start from scratch.";
+  w.appendChild(msg);
+
+  // Info card
+  const card=document.createElement("div");
+  card.style.cssText="padding:20px 24px;background:rgba(0,180,216,.06);border:1px solid rgba(0,180,216,.15);border-radius:8px;max-width:420px;margin:0 auto 32px;text-align:left";
+  card.innerHTML=\`
+    <div style="font-family:DM Mono,monospace;font-size:10px;letter-spacing:2px;color:#00B4D8;text-transform:uppercase;margin-bottom:12px">What happens next</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="width:20px;height:20px;border-radius:4px;background:rgba(0,180,216,.15);border:1px solid rgba(0,180,216,.3);display:flex;align-items:center;justify-content:center;font-family:DM Mono,monospace;font-size:10px;color:#00B4D8;flex-shrink:0">1</div>
+        <p style="font-size:14px;color:#8BAFC4;margin:0;line-height:1.6;font-weight:300">Write us on WhatsApp — tell us your name and when you last surfed with us.</p>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="width:20px;height:20px;border-radius:4px;background:rgba(0,180,216,.15);border:1px solid rgba(0,180,216,.3);display:flex;align-items:center;justify-content:center;font-family:DM Mono,monospace;font-size:10px;color:#00B4D8;flex-shrink:0">2</div>
+        <p style="font-size:14px;color:#8BAFC4;margin:0;line-height:1.6;font-weight:300">Your coach reviews your logbook and confirms your current level.</p>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="width:20px;height:20px;border-radius:4px;background:rgba(0,180,216,.15);border:1px solid rgba(0,180,216,.3);display:flex;align-items:center;justify-content:center;font-family:DM Mono,monospace;font-size:10px;color:#00B4D8;flex-shrink:0">3</div>
+        <p style="font-size:14px;color:#8BAFC4;margin:0;line-height:1.6;font-weight:300">We confirm availability and reserve your spot for the next camp.</p>
+      </div>
+    </div>
+  \`;
+  w.appendChild(card);
+
+  // WhatsApp CTA
+  const ctaBtn=document.createElement("button");
+  ctaBtn.className="cta";
+  ctaBtn.style.cssText="max-width:380px;margin:0 auto;display:block";
+  ctaBtn.textContent="Continue on WhatsApp →";
+  ctaBtn.addEventListener("click",()=>{
+    // WHATSAPP NUMBER — change number below to update
+    const waNum="50379149261";
+    const waMsg=encodeURIComponent("Hi! I have surfed with The Surf Sequence before and I would like to book my next camp. Can you check my logbook?");
+    window.open("https://wa.me/"+waNum+"?text="+waMsg,"_blank");
+  });
+  w.appendChild(ctaBtn);
+
+  // Not returning link
+  const notReturning=document.createElement("p");
+  notReturning.style.cssText="font-size:13px;color:#3D5A6E;margin-top:16px;cursor:pointer;text-decoration:underline;text-underline-offset:3px";
+  notReturning.textContent="Actually, this is my first time — take the diagnostic";
+  notReturning.addEventListener("click",()=>{
+    S.returned=1;
+    S.screen="quiz";
+    render();
+  });
+  w.appendChild(notReturning);
+
+  const footer=document.createElement("p");
+  footer.style.cssText="font-family:DM Mono,monospace;font-size:10px;color:#3D5A6E;text-align:center;margin-top:28px;letter-spacing:2px;text-transform:uppercase";
+  footer.textContent="The Surf Sequence · Evolve through play";
+  w.appendChild(footer);
+
+  return w;
+}
+
 function renderIntro(){
   const w=div("rise");
   w.style.textAlign="center";
@@ -520,7 +612,12 @@ function renderIntro(){
       alert("Please answer the question above first.");
       return;
     }
-    S.screen="quiz";render();
+    if(S.returned===0){
+      S.screen="returning";
+    } else {
+      S.screen="quiz";
+    }
+    render();
   });
   startBtn.style.cssText+="max-width:360px;margin:20px auto 0;display:block";
   w.appendChild(startBtn);
@@ -857,6 +954,7 @@ function render(){
   wrap.innerHTML="";
   let c;
   if(S.screen==="intro") c=renderIntro();
+  else if(S.screen==="returning") c=renderReturning();
   else if(S.screen==="quiz") c=renderQuiz();
   else if(S.screen==="capture") c=renderCapture();
   else if(S.screen==="sending") c=renderSending();
